@@ -4,17 +4,26 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_score, recall_score, f1_score
 
-print("Loading data...")
 images = idx2np.convert_from_file('train-images.idx3-ubyte')
 labels = idx2np.convert_from_file('train-labels.idx1-ubyte')
 images_test = idx2np.convert_from_file('t10k-images.idx3-ubyte')
 labels_test = idx2np.convert_from_file('t10k-labels.idx1-ubyte')
 
-print("Data loaded")
-train_images = images / 255.0
-train_labels = labels
-test_images = images_test / 255.0
-test_labels = labels_test
+def filter_data(data, condition):
+    images, labels = data
+    new_images = images[condition]
+    new_labels = labels[condition]
+    return new_images, new_labels
+
+train_images_0, train_label_0 = filter_data((images, labels), labels == 0)
+train_images_1, train_label_1 = filter_data((images, labels), labels == 1)
+test_images_0, test_label_0 = filter_data((images_test, labels_test), labels_test == 0)
+test_images_1, test_label_1 = filter_data((images_test, labels_test), labels_test == 1)
+
+train_images = np.concatenate((train_images_0, train_images_1), axis=0) / 255.0
+train_labels = np.concatenate((train_label_0, train_label_1), axis=0)
+test_images = np.concatenate((test_images_0, test_images_1), axis=0) / 255.0
+test_labels = np.concatenate((test_label_0, test_label_1), axis=0)
 
 #flatten images
 N, _, _ = train_images.shape
@@ -26,10 +35,6 @@ X_train = train_images
 y_train = train_labels
 X_test = test_images
 y_test = test_labels
-
-indices = np.random.permutation(X_train.shape[0])
-X_train = X_train[indices][:1000]  
-y_train = y_train[indices][:1000]
 
 print("Fitting model...")
 model = LogisticRegression(
