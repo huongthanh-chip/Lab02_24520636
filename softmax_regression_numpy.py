@@ -8,6 +8,7 @@ class SoftmaxRegression:
         self.epoch = epoch
         self.lr = lr
         self.w = None
+        self.b = None
 
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
@@ -16,13 +17,16 @@ class SoftmaxRegression:
         N, d = x1.shape
         _, k = y1.shape
         self.w = np.zeros((d, k), dtype=np.float64)
+        self.b = np.zeros((1, k), dtype=np.float64)
         self.loss_history = []
         for e in tqdm.tqdm(range(self.epoch), desc='Training'):
-            z = x1 @ self.w
+            z = x1 @ self.w + self.b
             y_pred = self.softmax(z)
             delta_y = y_pred - y1  # (N, k)
             gradient = (1 / N) * x1.T @ delta_y  # (d, k)
+            bias_gradient = delta_y.mean(axis=0, keepdims=True)
             self.w -= self.lr * gradient
+            self.b -= self.lr * bias_gradient
             self.epoch_loss = self.loss_fn(y1, y_pred)
             self.loss_history.append(self.epoch_loss)
         if self.loss_history:
@@ -31,15 +35,16 @@ class SoftmaxRegression:
             self.epoch_loss = None
 
     def loss_fn(self, y1: np.ndarray, y_pred: np.ndarray) -> float: 
-        return - (y1 * np.log(y_pred + 1e-8)).sum(axis = 1).mean() # (N, 3)
+        return - (y1 * np.log(y_pred + 1e-8)).sum(axis=1).mean()
     
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
-        z = X @ self.w 
+        z = X @ self.w + self.b
         return self.softmax(z)
 
     def softmax(self, z: np.ndarray):
-        denum = np.exp(z).sum(axis=1, keepdims=True)
-        return np.exp(z) / denum
+        z = z - np.max(z, axis=1, keepdims=True)
+        exp_z = np.exp(z)
+        return exp_z / exp_z.sum(axis=1, keepdims=True)
     
     def predict(self, X: np.ndarray) -> np.ndarray:
         proba = self.predict_proba(X)

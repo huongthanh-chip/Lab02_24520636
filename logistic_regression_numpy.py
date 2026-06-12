@@ -8,21 +8,26 @@ class LogisticRegression:
         self.epoch = epoch
         self.lr = lr
         self.w = None
+        self.b = None
 
     def sigmoid(self, z):
+        z = np.clip(z, -500, 500)
         return 1 / (1 + np.exp(-z))
 
     def fit(self, x1: np.ndarray, y1: np.ndarray):
         N, d = x1.shape
         self.w = np.zeros((d, 1), dtype=np.float64)
+        self.b = 0.0
         y1 = y1.reshape(-1, 1)
         self.loss_history = []
         for e in tqdm(range(self.epoch)):
-            z = x1 @ self.w
+            z = x1 @ self.w + self.b
             y_pred = self.sigmoid(z)
             delta_y = y_pred - y1  # (N, 1)
             gradient = (1 / N) * x1.T @ delta_y  # (d, 1)
+            bias_gradient = delta_y.mean()
             self.w -= self.lr * gradient
+            self.b -= self.lr * bias_gradient
             loss = self.loss_fn(y1, y_pred)
             self.loss_history.append(loss)
         self.epoch_loss = self.loss_history[-1] if self.loss_history else None
@@ -32,12 +37,12 @@ class LogisticRegression:
         return -l.mean()
     
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
-        z = X @ self.w 
+        z = X @ self.w + self.b
         return self.sigmoid(z)
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         proba = self.predict_proba(X)
-        return (proba > 0.5).astype(int)
+        return (proba > 0.5).astype(int).ravel()
 
     def evaluate(self, y, y_pred) -> dict: 
         precision = precision_score(y, y_pred)

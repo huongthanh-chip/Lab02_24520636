@@ -1,10 +1,7 @@
 import numpy as np
 import idx2numpy as idx2np
-import pandas as pd
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.linear_model import LogisticRegression
-
-from softmax_regression import SoftmaxRegression
 
 print("Loading data...")
 images = idx2np.convert_from_file('train-images.idx3-ubyte')
@@ -30,8 +27,8 @@ X_test = test_images
 y_test = test_labels
 
 indices = np.random.permutation(X_train.shape[0])
-X_train = X_train[indices][:1000]  
-y_train = y_train[indices][:1000]
+X_train = X_train[indices]
+y_train = y_train[indices]
 
 model = LogisticRegression (
     multi_class='multinomial',

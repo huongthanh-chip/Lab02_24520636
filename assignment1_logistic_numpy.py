@@ -1,8 +1,6 @@
 import numpy as np
 import idx2numpy as idx2np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from logistic_regression import LogisticRegression
+from logistic_regression_numpy import LogisticRegression
 
 images = idx2np.convert_from_file('train-images.idx3-ubyte')
 labels = idx2np.convert_from_file('train-labels.idx1-ubyte')

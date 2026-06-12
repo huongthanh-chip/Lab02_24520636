@@ -1,9 +1,6 @@
 import numpy as np
 import idx2numpy as idx2np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from logistic_regression import LogisticRegression
-from softmax_regression import SoftmaxRegression
+from softmax_regression_numpy import SoftmaxRegression
 
 images = idx2np.convert_from_file('train-images.idx3-ubyte')
 labels = idx2np.convert_from_file('train-labels.idx1-ubyte')
@@ -26,7 +23,6 @@ train_labels = labels
 test_images = images_test / 255.0
 test_labels = labels_test
 encoded_train_labels = convert_to_onehot_vector(train_labels)
-encoded_test_labels = convert_to_onehot_vector(test_labels)
 
 #flatten images
 N, _, _ = train_images.shape
